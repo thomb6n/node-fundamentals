@@ -3,6 +3,8 @@
 "use strict";
 
 const minimist = require("minimist");
+const path = require("node:path");
+const fs = require("node:fs");
 
 const args = minimist(process.argv.slice(2), {
   boolean: ["help"],
@@ -12,7 +14,11 @@ const args = minimist(process.argv.slice(2), {
 if (args.help) {
   printHelp();
 } else if (args.file) {
-  console.log(args.file);
+  const filePath = path.resolve("README.md");
+  // console.log(filePath);
+  // console.log(__dirname);
+  // console.log(__filename);
+  processFile(filePath);
 } else {
   error("Incorrect usage.", true);
 }
@@ -40,4 +46,11 @@ function error(msg, includeHelp = false) {
     console.log("");
     printHelp();
   }
+}
+
+function processFile(filePath) {
+  const contents = fs.readFileSync(filePath, {
+    encoding: "utf-8",
+  });
+  console.log(contents);
 }
