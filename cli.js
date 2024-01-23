@@ -14,7 +14,7 @@ const args = minimist(process.argv.slice(2), {
 if (args.help) {
   printHelp();
 } else if (args.file) {
-  const filePath = path.resolve("README.md");
+  const filePath = path.resolve(args.file);
   // console.log(filePath);
   // console.log(__dirname);
   // console.log(__filename);
@@ -49,8 +49,11 @@ function error(msg, includeHelp = false) {
 }
 
 function processFile(filePath) {
-  const contents = fs.readFileSync(filePath, {
-    encoding: "utf-8",
+  fs.readFile(filePath, (err, contents) => {
+    if (err) {
+      error(err.toString());
+    } else {
+      console.log(contents.toString());
+    }
   });
-  console.log(contents);
 }
