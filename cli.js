@@ -2,40 +2,43 @@
 
 "use strict";
 
-const minimist = require("minimist");
 const path = require("node:path");
 const fs = require("node:fs");
+const util = require("node:util");
+
+const minimist = require("minimist");
+const getStdin = require("get-stdin");
 
 const args = minimist(process.argv.slice(2), {
-  boolean: ["help"],
+  boolean: ["help", "in"],
   string: ["file"],
 });
 
 if (args.help) {
   printHelp();
+} else if (args.in) {
+  getStdin().then(processFile).catch(error);
 } else if (args.file) {
   const filePath = path.resolve(args.file);
-  // console.log(filePath);
-  // console.log(__dirname);
-  // console.log(__filename);
-  processFile(filePath);
+
+  fs.readFile(filePath, (err, contents) => {
+    if (err) {
+      error(err.toString());
+    } else {
+      processFile(contents.toString());
+    }
+  });
 } else {
   error("Incorrect usage.", true);
 }
 
-// process.stdout.write("Hello process");
-// console.log("Hello world");
-
-// process.stderr.write("Hello error");
-// console.error("Hello error");
-
 function printHelp() {
   console.log("cli usage:");
   console.log("  cli.js --help");
-  console.log("  cli.js --file='hello world'");
   console.log("");
-  console.log("--help   print this help");
-  console.log("--file   print the contents");
+  console.log("--help              print this help");
+  console.log("--file={FILENAME}   print the contents");
+  console.log("--in                process stdin");
   console.log("");
 }
 
@@ -48,12 +51,6 @@ function error(msg, includeHelp = false) {
   }
 }
 
-function processFile(filePath) {
-  fs.readFile(filePath, (err, contents) => {
-    if (err) {
-      error(err.toString());
-    } else {
-      console.log(contents.toString());
-    }
-  });
+function processFile(contents) {
+  process.stdout.write(contents);
 }
